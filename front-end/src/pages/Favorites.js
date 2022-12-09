@@ -31,8 +31,8 @@ const Favorites = () => {
     })
 
     return (
-        <div className="Favorite Ducks">
-            <h1>Favorite Ducks</h1>
+        <div className="Favorite Characters">
+            <h1>Favorite Characters</h1>
             {/* {favoriteDucks.length > 0 ?
                 favoriteDucks?.map(duck => (
                     <div>

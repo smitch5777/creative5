@@ -12,11 +12,11 @@ app.use(
 const mongoose = require("mongoose");
 const e = require("express");
 
-// // connect to the database
-// mongoose.connect("mongodb://localhost:27017/test", {
-//   useUnifiedTopology: true,
-//   useNewUrlParser: true,
-// });
+// connect to the database
+mongoose.connect("mongodb://localhost:27017/test", {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+});
 
 const characterSchema = new mongoose.Schema({
   stats: {

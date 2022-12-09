@@ -10,7 +10,7 @@ const Home = () => {
 
   const newRandomCharacter = async (e) => {
     const characterQuery = await axios.get("/dnd/api/random");
-    setCharacter(characterQuery[0]); //Check that this is necessary
+    setCharacter(characterQuery);
     e.preventDefault();
   };
 
