@@ -14,26 +14,27 @@ const Home = () => {
     e.preventDefault();
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   return (
     <div className="home">
+      <div className="Title">DnD</div>
       <div className="Welcome">Welcome to The DnD Character Generator!!</div>
       <div className="description">
         Generate characters for any of your many campaigns
       </div>
       <br />
       <div className="flex">
-        <h2>Random Characters: </h2>
-        <button className="random_duck_button" onClick={newRandomCharacter}>
-          New Character
+        <button className="randomCharacterButton" onClick={newRandomCharacter}>
+          New Random Character
         </button>
       </div>
-      {character != null ? (
+      <div>What are you waiting for??? Make a new character!!</div>
+      {/* {character != null ? (
         <Character className="randomCharacter" character={character} />
       ) : (
         <div>What are you waiting for??? Make a new character!!</div>
-      )}
+      )} */}
     </div>
   );
 };

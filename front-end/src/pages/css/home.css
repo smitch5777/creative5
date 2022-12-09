@@ -1,0 +1,24 @@
+.home {
+    text-align: center;
+    background-color: beige;
+}
+
+.Welcome {}
+
+.randomCharacterButton {
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    cursor: pointer;
+}
+
+.Title {
+    text-align: center;
+    font-size: 80px;
+    color: red;
+    font-weight: 700;
+}
