@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
+const DEBUG = false;
+
 const app = express();
 app.use(bodyParser.json());
 app.use(
@@ -48,14 +50,14 @@ const characterSchema = new mongoose.Schema({
     persuasion: Boolean,
     religion: Boolean,
   },
-  saving_throws: {
-    strength: Boolean,
-    dexterity: Boolean,
-    constitution: Boolean,
-    intelligence: Boolean,
-    wisdom: Boolean,
-    charisma: Boolean,
-  },
+  // saving_throws: {
+  //   strength: Boolean,
+  //   dexterity: Boolean,
+  //   constitution: Boolean,
+  //   intelligence: Boolean,
+  //   wisdom: Boolean,
+  //   charisma: Boolean,
+  // },
   // weapons: [
   //   {
   //     name: String,
@@ -80,7 +82,7 @@ characterSchema.set("toJSON", {
 
 const Character = mongoose.model("character", characterSchema);
 
-app.get("/api/random", async (req, res) => {
+app.get("/dnd/api/random", async (req, res) => {
   try {
     const car = makeRandomCharacterStats();
     const finalCharacter = makeFullCharacter(car);
@@ -130,7 +132,7 @@ const possibleClasses = [
 ];
 function getRandomClass() {
   const numClasses = possibleClasses.length;
-  const i = parseInt(Math.random * numClasses, 10);
+  const i = parseInt(Math.random() * numClasses, 10);
   return possibleClasses[i];
 }
 
@@ -188,7 +190,7 @@ const possibleRaces = [
 
 function getRandomRace() {
   const numRaces = possibleRaces.length;
-  const i = parseInt(Math.random * numRaces, 10);
+  const i = parseInt(Math.random() * numRaces, 10);
   return possibleRaces[i];
 }
 
@@ -210,9 +212,9 @@ abilityScores.push("charisma");
 
 function randomStat() {
   const rolls = [];
-  const lowestRoll = 7;
+  let lowestRoll = 7;
   for (let i = 0; i < 4; i++) {
-    const roll = parseInt(Math.random * 6, 10);
+    const roll = parseInt(Math.random() * 6 + 1, 10);
     if (roll < lowestRoll) {
       lowestRoll = roll;
     }
@@ -220,7 +222,9 @@ function randomStat() {
   }
   rolls.splice(rolls.indexOf(lowestRoll), 1);
 
-  return rolls.reduce((partialSum, a) => partialSum + a, 0);
+  const sum_total = rolls.reduce((partialSum, a) => partialSum + a, 0);
+
+  return sum_total;
 }
 
 const randomNames = [
@@ -252,7 +256,7 @@ const randomNames = [
 
 function getRandomName() {
   const numNames = possibleRaces.length;
-  const i = parseInt(Math.random * numNames, 10);
+  const i = parseInt(Math.random() * numNames, 10);
   return randomNames[i];
 }
 
@@ -272,16 +276,49 @@ const proficiencies = [
   "performance",
   "persuasion",
   "religion",
+  "sleight_of_hand",
+  "stealth",
+  "survival",
 ];
 
 function getRandomProficiencies() {
-  const numProf = possibleRaces.length;
-  const i = parseInt(Math.random * numProf, 10);
-  return randomNames[i];
+  const numProf = proficiencies.length;
+  const i = parseInt(Math.random() * numProf, 10);
+  return proficiencies[i];
 }
 
 function makeRandomCharacterStats() {
-  const character = {};
+  const character = {
+    stats: {
+      strength: 0,
+      dexterity: 0,
+      constitution: 0,
+      intelligence: 0,
+      wisdom: 0,
+      charisma: 0,
+    },
+    race: "",
+    class: "",
+    name: "",
+    level: 0,
+    proficiencies: {
+      acrobatics: false,
+      animal_handling: false,
+      arcana: false,
+      athletics: false,
+      deception: false,
+      history: false,
+      insight: false,
+      intimidation: false,
+      investigation: false,
+      medicine: false,
+      nature: false,
+      perception: false,
+      performance: false,
+      persuasion: false,
+      religion: false,
+    },
+  };
 
   const charClass = getRandomClass();
   character.class = charClass;
@@ -294,17 +331,17 @@ function makeRandomCharacterStats() {
   for (let i = 0; i < 6; i++) {
     stats.push(randomStat());
   }
-  stats.sort();
+  stats.sort((a, b) => b - a);
 
   const abilityPriorities = getAbilityPriorities(charClass);
   const abilitiesMade = [];
   for (let i = 0; i < stats.length; i++) {
     let ability = "";
-    if (abilityPriorities.length < i) {
+    if (i < abilityPriorities.length) {
       ability = abilityPriorities[i];
     } else {
       do {
-        ability = abilityScores[parseInt(Math.random * 6, 10)];
+        ability = abilityScores[parseInt(Math.random() * 6, 10)];
       } while (abilitiesMade.indexOf(ability) != -1);
     }
     abilitiesMade.push(ability);
@@ -339,44 +376,100 @@ function makeFullCharacter(characterStats) {
 function makeNewCharacter(characterData) {
   const char = {
     stats: {
-      strength: characterData.stats.strength ? characterData.stats.strength : 10,
-      dexterity: characterData.stats.dexterity ? characterData.stats.dexterity : 10,
-      constitution: characterData.stats.constitution ? characterData.stats.constitution : 10,
-      intelligence: characterData.stats.intelligence ? characterData.stats.intelligence : 10,
+      strength: characterData.stats.strength
+        ? characterData.stats.strength
+        : 10,
+      dexterity: characterData.stats.dexterity
+        ? characterData.stats.dexterity
+        : 10,
+      constitution: characterData.stats.constitution
+        ? characterData.stats.constitution
+        : 10,
+      intelligence: characterData.stats.intelligence
+        ? characterData.stats.intelligence
+        : 10,
       wisdom: characterData.stats.wisdom ? characterData.stats.wisdom : 10,
-      charisma: characterData.stats.charisma ? characterData.stats.charisma : 10,
+      charisma: characterData.stats.charisma
+        ? characterData.stats.charisma
+        : 10,
     },
     race: characterData.race ? characterData.race : "human",
     class: characterData.class ? characterData.class : "fighter",
     name: characterData.name ? characterData.name : "Joe",
     level: characterData.level ? characterData.level : 1,
     proficiencies: {
-      acrobatics: characterData?.proficiencies?.acrobatics ? characterData?.proficiencies?.acrobatics : false,
-      animal_handling: characterData?.proficiencies?.animal_handling ? characterData?.proficiencies?.animal_handling : false,
-      arcana: characterData?.proficiencies?.arcana ? characterData?.proficiencies?.arcana : false,
-      athletics: characterData?.proficiencies?.athletics ? characterData?.proficiencies?.athletics : false,
-      deception: characterData?.proficiencies?.deception ? characterData?.proficiencies?.deception : false,
-      history: characterData?.proficiencies?.history ? characterData?.proficiencies?.history : false,
-      insight: characterData?.proficiencies?.insight ? characterData?.proficiencies?.insight : false,
-      intimidation: characterData?.proficiencies?.intimidation ? characterData?.proficiencies?.intimidation : false,
-      investigation: characterData?.proficiencies?.investigation ? characterData?.proficiencies?.investigation : false,
-      medicine: characterData?.proficiencies?.medicine ? characterData?.proficiencies?.medicine : false,
-      nature: characterData?.proficiencies?.nature ? characterData?.proficiencies?.nature : false,
-      perception: characterData?.proficiencies?.perception ? characterData?.proficiencies?.perception : false,
-      performance: characterData?.proficiencies?.performance ? characterData?.proficiencies?.performance : false,
-      persuasion: characterData?.proficiencies?.persuasion ? characterData?.proficiencies?.persuasion : false,
-      religion: characterData?.proficiencies?.religion ? characterData?.proficiencies?.religion : false,
+      acrobatics: characterData?.proficiencies?.acrobatics
+        ? characterData?.proficiencies?.acrobatics
+        : false,
+      animal_handling: characterData?.proficiencies?.animal_handling
+        ? characterData?.proficiencies?.animal_handling
+        : false,
+      arcana: characterData?.proficiencies?.arcana
+        ? characterData?.proficiencies?.arcana
+        : false,
+      athletics: characterData?.proficiencies?.athletics
+        ? characterData?.proficiencies?.athletics
+        : false,
+      deception: characterData?.proficiencies?.deception
+        ? characterData?.proficiencies?.deception
+        : false,
+      history: characterData?.proficiencies?.history
+        ? characterData?.proficiencies?.history
+        : false,
+      insight: characterData?.proficiencies?.insight
+        ? characterData?.proficiencies?.insight
+        : false,
+      intimidation: characterData?.proficiencies?.intimidation
+        ? characterData?.proficiencies?.intimidation
+        : false,
+      investigation: characterData?.proficiencies?.investigation
+        ? characterData?.proficiencies?.investigation
+        : false,
+      medicine: characterData?.proficiencies?.medicine
+        ? characterData?.proficiencies?.medicine
+        : false,
+      nature: characterData?.proficiencies?.nature
+        ? characterData?.proficiencies?.nature
+        : false,
+      perception: characterData?.proficiencies?.perception
+        ? characterData?.proficiencies?.perception
+        : false,
+      performance: characterData?.proficiencies?.performance
+        ? characterData?.proficiencies?.performance
+        : false,
+      persuasion: characterData?.proficiencies?.persuasion
+        ? characterData?.proficiencies?.persuasion
+        : false,
+      religion: characterData?.proficiencies?.religion
+        ? characterData?.proficiencies?.religion
+        : false,
     },
     saving_throws: {
-      strength: characterData?.saving_throws?.strength ? characterData?.saving_throws?.strength : false,
-      dexterity: characterData?.saving_throws?.dexterity ? characterData?.saving_throws?.dexterity : false,
-      constitution: characterData?.saving_throws?.constitution ? characterData?.saving_throws?.constitution : false,
-      intelligence: characterData?.saving_throws?.intelligence ? characterData?.saving_throws?.intelligence : false,
-      wisdom: characterData?.saving_throws?.wisdom ? characterData?.saving_throws?.wisdom : false,
-      charisma: characterData?.saving_throws?.charisma ? characterData?.saving_throws?.charisma : false,
+      strength: characterData?.saving_throws?.strength
+        ? characterData?.saving_throws?.strength
+        : false,
+      dexterity: characterData?.saving_throws?.dexterity
+        ? characterData?.saving_throws?.dexterity
+        : false,
+      constitution: characterData?.saving_throws?.constitution
+        ? characterData?.saving_throws?.constitution
+        : false,
+      intelligence: characterData?.saving_throws?.intelligence
+        ? characterData?.saving_throws?.intelligence
+        : false,
+      wisdom: characterData?.saving_throws?.wisdom
+        ? characterData?.saving_throws?.wisdom
+        : false,
+      charisma: characterData?.saving_throws?.charisma
+        ? characterData?.saving_throws?.charisma
+        : false,
     },
-  }
+  };
   return char;
+}
+
+if (DEBUG) {
+  makeFullCharacter();
 }
 
 // duckSchema.virtual("id").get(function () {

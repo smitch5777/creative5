@@ -14,10 +14,10 @@ const Home = () => {
     e.preventDefault();
   };
 
-  useEffect(() => { }, []);
+  useEffect(() => {}, []);
 
   return (
-    <div className="home">
+    <div className="home" basename="/creative5/front-end/build">
       <div className="Title">DnD</div>
       <div className="Welcome">Welcome to The DnD Character Generator!!</div>
       <div className="description">
@@ -29,12 +29,11 @@ const Home = () => {
           New Random Character
         </button>
       </div>
-      <div>What are you waiting for??? Make a new character!!</div>
-      {/* {character != null ? (
-        <Character className="randomCharacter" character={character} />
+      {character != null ? (
+        <Character className="randomCharacter" character={character.data} />
       ) : (
         <div>What are you waiting for??? Make a new character!!</div>
-      )} */}
+      )}
     </div>
   );
 };
